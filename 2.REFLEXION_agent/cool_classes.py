@@ -34,3 +34,17 @@ class AnswerQuestion(BaseModel):
         description="1-3 search queries for researching improvements to address the critique of your current answer."
     )
 
+
+#Create a new class: ReviseAnswer
+#Inherit from: AnswerQuestion
+#Add new field: references: List[str]
+
+# Final structure includes:- answer, reflection, search_queries, references(NEW)
+#references - we will get from TAVILLY Search Engine
+# Forcing citation in the model encourages grounded responses
+class ReviseAnswer(AnswerQuestion):
+    """Revise your original answer to your question."""
+
+    references: List[str] = Field(
+        description="Citations motivating your updated answer."
+    )

@@ -11,7 +11,7 @@ from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 
-from cool_classes import AnswerQuestion
+from cool_classes import AnswerQuestion, ReviseAnswer
 
 llm = ChatOpenAI(model="gpt-4")
 #JSON Parser → converts response to dictionary
@@ -56,6 +56,42 @@ first_responder = actor_prompt_template.partial(
     first_instruction="Provide a detailed ~250 word answer."
 ) | llm.bind_tools(tools=[AnswerQuestion],
                    tool_choice="AnswerQuestion")
+
+
+
+#Create Revision Instructions
+#Define a new instruction template:
+#Include these rules:
+#1.Revise the previous answer using new information
+#2.Use critique to:
+#Add missing information
+#Remove unnecessary (superfluous) content
+#3.Keep answer within 250 words
+#4.Add numerical citations (e.g., [1], [2])
+#5.Add a References section at the end (URLs)
+
+revise_instructions = """Revise your previous answer using the new information.
+    - You should use the previous critique to add important information to your answer.
+        - You MUST include numerical citations in your revised answer to ensure it can be verified.
+        - Add a "References" section to the bottom of your answer (which does not count towards the word limit). In form of:
+            - [1] https://example.com
+            - [2] https://example.com
+    - You should use the previous critique to remove superfluous information from your answer and make SURE it is not more than 250 words.
+"""
+
+#Reuse the existing Actor Prompt Template
+#Replace:  First Instruction Placeholder 
+
+#Create a new chain (Reviser Chain):
+#Use: Actor Prompt Template
+#Inject: Revision Instructions
+#Pass into: GPT-4
+
+#The Reviser Agent will: 1.Read previous draft ,2.Analyze critique:Add missing info,Remove fluff
+#3.Use search results:Add real-world data 4.Generate:Updated answer,Citations ([1], [2]),Reference links
+revisor = actor_prompt_template.partial(
+    first_instruction=revise_instructions
+) | llm.bind_tools(tools=[ReviseAnswer], tool_choice="ReviseAnswer")
 
 
 

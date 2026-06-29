@@ -1,17 +1,20 @@
 #This node is going to take as an input the AI message, which is going to have the information of the wanted search queries.
 # And it's going to run TAVILY to get us real time results and real time information from the web.
 
-from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_community.utilities.tavily_search import TavilySearchAPIWrapper
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from langchain_tavily import TavilySearch
 from langchain_core.tools import StructuredTool #allows us to convert a Python function into a tool that can be used by llms.It provides to the LLM a structured schema for the function, which will help the LLM understand how to use this tool.
 from langgraph.prebuilt import ToolNode #Detects tool calls,Executes the tool when called by llm, Returns result back to the graph
 
 from cool_classes import AnswerQuestion, ReviseAnswer
 
-search = TavilySearchAPIWrapper()
+
 # Create a Tavily tool instance
 # max_results=5 → limits the number of search results returned per query
-tavily_tool = TavilySearchResults(api_wrapper=search, max_results=5)
+tavily_tool = TavilySearch(max_results=5)
 
 # This function will be used as a TOOL inside LangGraph
 def run_queries(search_queries: list[str], **kwargs):
@@ -38,7 +41,7 @@ def run_queries(search_queries: list[str], **kwargs):
 
 # Create a ToolNode (LangGraph prebuilt node)
 # This node is responsible for EXECUTING tools when LLM calls them
-tool_node = ToolNode(
+execute_tools = ToolNode(
     [
         # Wrap the run_queries function as a StructuredTool
         # name=AnswerQuestion.__name__ → tool name becomes "AnswerQuestion"
@@ -56,3 +59,4 @@ tool_node = ToolNode(
             name=ReviseAnswer.__name__
         ),
     ]
+)

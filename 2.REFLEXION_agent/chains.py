@@ -13,7 +13,8 @@ from langchain_openai import ChatOpenAI
 
 from cool_classes import AnswerQuestion, ReviseAnswer
 
-llm = ChatOpenAI(model="gpt-4")
+#llm = ChatOpenAI(model="gpt-4")
+llm = ChatOpenAI(model="gpt-4o-mini")
 #JSON Parser → converts response to dictionary
 #Pydantic Parser → converts to structured object
 parser = JsonOutputToolsParser(return_id=True)
